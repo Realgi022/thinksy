@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:thinksy/features/authentication/presentation/pages/sign_up_page.dart';
 
 class WelcomeActions extends StatelessWidget {
   const WelcomeActions({super.key});
@@ -9,7 +10,12 @@ class WelcomeActions extends StatelessWidget {
       children: [
         ElevatedButton(
           onPressed: () {
-            // Navigation will be added later.
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const SignUpPage(),
+              ),
+            );
           },
           child: const Text('Get started'),
         ),
@@ -21,7 +27,7 @@ class WelcomeActions extends StatelessWidget {
           height: 56,
           child: OutlinedButton(
             onPressed: () {
-              // Navigation will be added later.
+              // Sign in navigation comes later.
             },
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.white,
