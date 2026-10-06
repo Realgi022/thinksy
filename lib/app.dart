@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-
-import 'core/theme/app_theme.dart';
-import 'features/onboarding/presentation/pages/welcome_page.dart';
+import 'package:thinksy/core/theme/app_theme.dart';
+import 'package:thinksy/features/authentication/presentation/pages/auth_gate.dart';
 
 class ThinksyApp extends StatelessWidget {
   const ThinksyApp({super.key});
@@ -12,7 +11,7 @@ class ThinksyApp extends StatelessWidget {
       title: 'Thinksy',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
-      home: const WelcomePage(),
+      home: const AuthGate(),
     );
   }
 }

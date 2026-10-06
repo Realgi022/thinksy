@@ -34,30 +34,24 @@ class WelcomePage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Thinksy header
-                ThinksyHeader(),
+                const ThinksyHeader(),
 
                 const SizedBox(height: 40),
 
-                // AI mascot
-                Center(
+                const Center(
                   child: MascotSection(),
                 ),
 
                 const SizedBox(height: 32),
 
-                // Welcome title and description
-                WelcomeContent(),
+                const WelcomeContent(),
 
-                // Push buttons toward the bottom
                 const Spacer(),
 
-                // Get started + Sign in
-                WelcomeActions(),
+                const WelcomeActions(),
 
                 const SizedBox(height: 12),
 
-                // Footer
                 const Center(
                   child: Text(
                     'Powered by Fontys AI · Student Learning Companion',
