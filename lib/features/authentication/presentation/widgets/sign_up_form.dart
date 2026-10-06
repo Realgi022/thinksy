@@ -1,4 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:thinksy/features/authentication/data/services/auth_service.dart';
+import 'package:thinksy/features/home/presentation/pages/home_page.dart';
 
 class SignUpForm extends StatefulWidget {
   const SignUpForm({super.key});
@@ -15,8 +18,11 @@ class _SignUpFormState extends State<SignUpForm> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
+  final AuthService _authService = AuthService();
+
   bool _hidePassword = true;
   bool _hideConfirmPassword = true;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -28,15 +34,72 @@ class _SignUpFormState extends State<SignUpForm> {
     super.dispose();
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
+  Future<void> _submitForm() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await _authService.signUp(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Account information is valid!'),
+          content: Text('Account created successfully!'),
         ),
       );
 
-      // Actual account creation will be added later.
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const HomePage(),
+        ),
+        (route) => false,
+      );
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+
+      String message = 'Something went wrong. Please try again.';
+
+      if (e.code == 'email-already-in-use') {
+        message = 'An account already exists with this email.';
+      } else if (e.code == 'invalid-email') {
+        message = 'Please enter a valid email address.';
+      } else if (e.code == 'weak-password') {
+        message = 'Please choose a stronger password.';
+      } else if (e.code == 'network-request-failed') {
+        message = 'No internet connection. Please try again.';
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+        ),
+      );
+    } catch (_) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Unable to create account. Please try again.',
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -77,7 +140,7 @@ class _SignUpFormState extends State<SignUpForm> {
                 return 'Please enter your email';
               }
 
-              if (!value.contains('@')) {
+              if (!value.contains('@') || !value.contains('.')) {
                 return 'Please enter a valid email';
               }
 
@@ -126,6 +189,11 @@ class _SignUpFormState extends State<SignUpForm> {
             controller: _confirmPasswordController,
             obscureText: _hideConfirmPassword,
             textInputAction: TextInputAction.done,
+            onFieldSubmitted: (_) {
+              if (!_isLoading) {
+                _submitForm();
+              }
+            },
             decoration: _inputDecoration(
               label: 'Confirm password',
               icon: Icons.lock_outline,
@@ -158,8 +226,16 @@ class _SignUpFormState extends State<SignUpForm> {
           const SizedBox(height: 28),
 
           ElevatedButton(
-            onPressed: _submitForm,
-            child: const Text('Create account'),
+            onPressed: _isLoading ? null : _submitForm,
+            child: _isLoading
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                    ),
+                  )
+                : const Text('Create account'),
           ),
         ],
       ),
@@ -191,6 +267,18 @@ class _SignUpFormState extends State<SignUpForm> {
         borderRadius: BorderRadius.circular(16),
         borderSide: const BorderSide(
           color: Colors.white70,
+        ),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(
+          color: Colors.redAccent,
+        ),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(
+          color: Colors.redAccent,
         ),
       ),
     );
