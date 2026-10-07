@@ -11,7 +11,10 @@ class ThinksyApp extends StatelessWidget {
       title: 'Thinksy',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
-      home: const AuthGate(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const AuthGate(),
+      },
     );
   }
 }
